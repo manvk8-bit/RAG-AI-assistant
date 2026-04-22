@@ -1,11 +1,9 @@
 import streamlit as st
-import os
 
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain_openai import OpenAIEmbeddings
 from langchain_community.vectorstores import FAISS
-from langchain_openai import ChatOpenAI
+from langchain_openai import OpenAIEmbeddings, ChatOpenAI
 
 st.title("📄 AI Document Assistant")
 
@@ -24,14 +22,16 @@ if uploaded_file:
     documents = loader.load()
 
     # Split text
-    splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=50)
+    splitter = RecursiveCharacterTextSplitter(
+        chunk_size=500,
+        chunk_overlap=50
+    )
     docs = splitter.split_documents(documents)
 
-    # Create embeddings
-    embeddings = OpenAIEmbeddings(
-        openai_api_key=os.environ.get("OPENAI_API_KEY")
-    )
+    # Create embeddings (auto uses API key from Streamlit secrets)
+    embeddings = OpenAIEmbeddings()
 
+    # Create vector database
     vectorstore = FAISS.from_documents(docs, embeddings)
 
     # Ask question
@@ -43,10 +43,8 @@ if uploaded_file:
 
         context = "\n".join([doc.page_content for doc in relevant_docs])
 
-        llm = ChatOpenAI(
-            temperature=0,
-            openai_api_key=os.environ.get("OPENAI_API_KEY")
-        )
+        # LLM
+        llm = ChatOpenAI(temperature=0)
 
         prompt = f"""
         Answer only from this context:
