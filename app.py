@@ -26,7 +26,9 @@ if uploaded_file:
     docs = splitter.split_documents(documents)
 
     # Create embeddings
-    embeddings = OpenAIEmbeddings()
+    embeddings = OpenAIEmbeddings(
+    openai_api_key=os.environ["OPENAI_API_KEY"]
+)
     vectorstore = FAISS.from_documents(docs, embeddings)
 
     # Ask question
@@ -38,7 +40,10 @@ if uploaded_file:
 
         context = "\n".join([doc.page_content for doc in relevant_docs])
 
-        llm = ChatOpenAI(temperature=0)
+        llm = ChatOpenAI(
+    temperature=0,
+    openai_api_key=os.environ["OPENAI_API_KEY"]
+)
 
         prompt = f"""
         Answer only from this context:
