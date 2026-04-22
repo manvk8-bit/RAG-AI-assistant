@@ -22,11 +22,16 @@ if uploaded_file:
     documents = loader.load()
 
     # Split text
-    splitter = RecursiveCharacterTextSplitter(
-        chunk_size=500,
-        chunk_overlap=50
-    )
     docs = splitter.split_documents(documents)
+
+# SAFETY CHECK (IMPORTANT)
+if not docs:
+    st.error("No text could be extracted from this PDF. Try another file.")
+    st.stop()
+
+embeddings = OpenAIEmbeddings()
+
+vectorstore = FAISS.from_documents(docs, embeddings)
 
     # Create embeddings (auto uses API key from Streamlit secrets)
     embeddings = OpenAIEmbeddings()
