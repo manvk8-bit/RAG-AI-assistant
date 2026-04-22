@@ -1,4 +1,6 @@
 import streamlit as st
+import os
+
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.embeddings import OpenAIEmbeddings
@@ -27,8 +29,9 @@ if uploaded_file:
 
     # Create embeddings
     embeddings = OpenAIEmbeddings(
-    openai_api_key=os.environ["OPENAI_API_KEY"]
-)
+        openai_api_key=os.environ.get("OPENAI_API_KEY")
+    )
+
     vectorstore = FAISS.from_documents(docs, embeddings)
 
     # Ask question
@@ -41,9 +44,9 @@ if uploaded_file:
         context = "\n".join([doc.page_content for doc in relevant_docs])
 
         llm = ChatOpenAI(
-    temperature=0,
-    openai_api_key=os.environ["OPENAI_API_KEY"]
-)
+            temperature=0,
+            openai_api_key=os.environ.get("OPENAI_API_KEY")
+        )
 
         prompt = f"""
         Answer only from this context:
